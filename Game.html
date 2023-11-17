@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <video id="test" width="800px" height="600px" controls="controls">
+    <!--<video id="test" width="800px" height="600px" controls="controls">
         <source id="video" src="./res/pexelsvideo.mp4"/>
-    </video>
-    <video id="webcam" width="800" height="600"></video>
-    <button onclick="detectPose()">Analyse Video</button>
+    </video> -->
+    <video id="webcam" width="320" height="240"></video>
 </head>
 <body>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
@@ -16,6 +15,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
 
 <canvas id="viewport" width="628" height="628"></canvas>
+<button onclick="detectPose()">Analyse Video</button>
 
 <script>
     var detector = null;
@@ -23,8 +23,10 @@
 
     //check if webcam access is supported (new code)
     var enableWebcam = document.getElementById('webcam')
+    enableWebcam.setAttribute('autoplay', '');
+    enableWebcam.setAttribute('muted', '');
 
-    function getUserMediaSupported() {
+    /*function getUserMediaSupported() {
         return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     }
 
@@ -33,26 +35,32 @@
     } else {
         console.warn('webcam not supported')
     }
+    */
 
-    function enableCam() {
+    //function enableCam() {
 
-        const constraints = {
-            video: true
-        };
-        navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-            enableWebcam.srcObject = stream;
-            //video.addEventListener(predictWebcam);
+    var constraints = {
+        video: true,
+        audio: false
+    };
+    navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+        enableWebcam.srcObject = stream;
+        //video.addEventListener(predictWebcam);
+    })
+        .catch(function (err) {
+            console.log("errore: " + err);
         });
-        // ---- new code end ----
+    document.body.appendChild(enableWebcam);
+    //}
+    // ---- new code end ----
 
 
-        //video poses tracking
-        document.addEventListener('DOMContentLoaded', async function () {
-            detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet)
-            // video = document.getElementById('test');  'video'
-            video = document.getElementById('webcam');
-        })
-    }
+    //video poses tracking
+    document.addEventListener('DOMContentLoaded', async function () {
+        detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet)
+        // video = document.getElementById('test');  'video'
+        video = document.getElementById('webcam');
+    })
 
     async function detectPose() {
         const poses = await detector.estimatePoses(video);
