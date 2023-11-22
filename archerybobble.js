@@ -1,6 +1,28 @@
 // The function gets called when the window is fully loaded
 
-window.onload = function () {
+window.onload = async function () {
+    //check if webcam access is supported (new code)
+    var enableWebcam = document.getElementById('webcam')
+    enableWebcam.setAttribute('autoplay', '');
+    enableWebcam.setAttribute('muted', '');
+
+    var constraints = {
+        video: true,
+        audio: false
+    };
+    navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+        enableWebcam.srcObject = stream;
+        //video.addEventListener(predictWebcam);
+    })
+        .catch(function (err) {
+            console.log("errore: " + err);
+        });
+    document.body.appendChild(enableWebcam);
+    // ---- new code end ----
+    var lastDetectorUpdate = 0;
+    //var detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet)
+
+
     // Get the canvas and context
     var canvas = document.getElementById("viewport");
     var context = canvas.getContext("2d");
@@ -169,7 +191,7 @@ window.onload = function () {
     }
 
     // Main loop
-    function main(tframe) {
+    async function main(tframe) {
         // Request animation frames
         window.requestAnimationFrame(main);
 
@@ -204,13 +226,20 @@ window.onload = function () {
             }
         } else {
             // Update and render the game
-            update(tframe);
+            await update(tframe);
             render();
         }
     }
 
     // Update the game state
-    function update(tframe) {
+    async function update(tframe) {
+        const newDetectorUpdate = Math.round(tframe/1000)*1000;
+
+        if ((newDetectorUpdate - lastDetectorUpdate) > 2) {
+            lastDetectorUpdate = newDetectorUpdate;
+            detector.estimatePoses(enableWebcam).then(poses => {console.log(poses)});
+        }
+
         var dt = (tframe - lastframe) / 1000;
         lastframe = tframe;
 
@@ -951,6 +980,8 @@ window.onload = function () {
     function randRange(low, high) {
         return Math.floor(low + Math.random() * (high - low + 1));
     }
+
+    //TODO change commands to work with Movenet poses
 
     // Shoot the bubble
     function shootBubble() {

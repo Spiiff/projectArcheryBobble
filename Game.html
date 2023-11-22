@@ -8,6 +8,7 @@
     </video> -->
     <video id="webcam" width="320" height="240"></video>
 </head>
+
 <body>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
@@ -21,40 +22,6 @@
     var detector = null;
     var video = null;
 
-    //check if webcam access is supported (new code)
-    var enableWebcam = document.getElementById('webcam')
-    enableWebcam.setAttribute('autoplay', '');
-    enableWebcam.setAttribute('muted', '');
-
-    /*function getUserMediaSupported() {
-        return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    }
-
-    if (getUserMediaSupported()) {
-       enableCam();
-    } else {
-        console.warn('webcam not supported')
-    }
-    */
-
-    //function enableCam() {
-
-    var constraints = {
-        video: true,
-        audio: false
-    };
-    navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
-        enableWebcam.srcObject = stream;
-        //video.addEventListener(predictWebcam);
-    })
-        .catch(function (err) {
-            console.log("errore: " + err);
-        });
-    document.body.appendChild(enableWebcam);
-    //}
-    // ---- new code end ----
-
-
     //video poses tracking
     document.addEventListener('DOMContentLoaded', async function () {
         detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet)
@@ -62,11 +29,6 @@
         video = document.getElementById('webcam');
     })
 
-    async function detectPose() {
-        const poses = await detector.estimatePoses(video);
-
-        console.log(poses)
-    }
 </script>
 
 <script src='./archerybobble.js'></script>   <!-- type='text/javascript' -->
