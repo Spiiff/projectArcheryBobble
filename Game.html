@@ -6,17 +6,18 @@
     <!--<video id="test" width="800px" height="600px" controls="controls">
         <source id="video" src="./res/pexelsvideo.mp4"/>
     </video> -->
-    <video id="webcam" width="320" height="240"></video>
 </head>
 
 <body>
+<video id="webcam" width="320" height="240"></video>
+
+<canvas id="viewport" width="628" height="628"></canvas>
+<button onclick="detectPose()">Analyse Video</button>
+
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-
-<canvas id="viewport" width="628" height="628"></canvas>
-<button onclick="detectPose()">Analyse Video</button>
 
 <script>
     var detector = null;
@@ -30,7 +31,7 @@
     })
 
 </script>
-
 <script src='./archerybobble.js'></script>   <!-- type='text/javascript' -->
+
 </body>
 </html>

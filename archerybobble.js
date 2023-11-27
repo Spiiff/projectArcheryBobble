@@ -18,9 +18,11 @@ window.onload = async function () {
             console.log("errore: " + err);
         });
     document.body.appendChild(enableWebcam);
-    // ---- new code end ----
+
     var lastDetectorUpdate = 0;
     //var detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet)
+
+    // ---- new code end ----
 
 
     // Get the canvas and context
@@ -255,6 +257,25 @@ window.onload = async function () {
             // Remove cluster and drop tiles
             stateRemoveCluster(dt);
         }
+
+        // Prendo le pose dal video webcam
+        detector.estimatePoses(enableWebcam).then(poses => {
+            // Utilizzo le coordinate delle pose per controllare le funzioni
+            // utilizzo la posizione della mano per controllare la posizione del mouse
+            var pos = {
+                x: poses[0].keypoints[10].x,
+                y: poses[0].keypoints[10].y
+            };
+            // Utilizzo 'pos' per controllare le funzioni del codice
+            var mouseangle = radToDeg(Math.atan2((player.y + level.tileheight / 2) - pos.y, pos.x - (player.x + level.tilewidth / 2)));
+            player.angle = mouseangle;
+
+            // Utilizzo le coordinate del polso sinistro per controllare il lancio della pallina
+            if (poses[0].keypoints[9].y < poses[0].keypoints[10].y) {
+                shootBubble();
+            }
+
+        });
     }
 
     function setGameState(newgamestate) {
@@ -982,6 +1003,7 @@ window.onload = async function () {
     }
 
     //TODO change commands to work with Movenet poses
+
 
     // Shoot the bubble
     function shootBubble() {
