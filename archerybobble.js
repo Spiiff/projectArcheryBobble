@@ -161,8 +161,8 @@ window.onload = async function () {
         bubbleimage = images[0];
 
         // Add mouse events
-        canvas.addEventListener("mousemove", onMouseMove);
-        canvas.addEventListener("mousedown", onMouseDown);
+        //canvas.addEventListener("mousemove", onMouseMove);
+        //canvas.addEventListener("mousedown", onMouseDown);
 
         // Initialize the two-dimensional tile array
         for (var i = 0; i < level.columns; i++) {
@@ -237,9 +237,9 @@ window.onload = async function () {
     async function update(tframe) {
         const newDetectorUpdate = Math.round(tframe/1000)*1000;
 
-        if ((newDetectorUpdate - lastDetectorUpdate) > 2) {
+        if ((newDetectorUpdate - lastDetectorUpdate) > 3) {  //aumentare-diminuire i secondi tra rilevamenti pose a piacimento
             lastDetectorUpdate = newDetectorUpdate;
-            detector.estimatePoses(enableWebcam).then(poses => {console.log(poses)});
+            //detector.estimatePoses(enableWebcam).then(poses => {console.log(poses)});
         }
 
         var dt = (tframe - lastframe) / 1000;
@@ -258,10 +258,18 @@ window.onload = async function () {
             stateRemoveCluster(dt);
         }
 
+        //new code of movement with camera control
+        if (!detector) {   //aggiunto controllo per attendere la funzione asincrona sia caricata e per migliorare caricamento modello
+            return;
+        }
         // Prendo le pose dal video webcam
         detector.estimatePoses(enableWebcam).then(poses => {
+            const camThresholdfromTop = 150; //soglia superiore camera in pixel
+            const currentTime = new Date().getTime();
+            let lastShotTime=null;
+            const shotCooldown = 4000; //tempo attesa tra lanci in millisecondi (3 secondi)
             // Utilizzo le coordinate delle pose per controllare le funzioni
-            // utilizzo la posizione della mano per controllare la posizione del mouse
+            // utilizzo la posizione del polso destro per controllare la posizione del mouse
             var pos = {
                 x: poses[0].keypoints[10].x,
                 y: poses[0].keypoints[10].y
@@ -271,11 +279,15 @@ window.onload = async function () {
             player.angle = mouseangle;
 
             // Utilizzo le coordinate del polso sinistro per controllare il lancio della pallina
-            if (poses[0].keypoints[9].y < poses[0].keypoints[10].y) {
-                shootBubble();
+            if (poses[0].keypoints[9].y < camThresholdfromTop && poses[0].keypoints[9].score>0.5) { //fiducia al 50%
+                if (lastShotTime === null || currentTime - lastShotTime >= shotCooldown) {
+                    shootBubble();
+                    //lastShotTime = currentTime;
+                }} else if (gamestate == gamestates.gameover) {
+                newGame();
             }
-
         });
+
     }
 
     function setGameState(newgamestate) {
@@ -511,7 +523,7 @@ window.onload = async function () {
 
         // No clusters found
         turncounter++;
-        if (turncounter >= 5) {
+        if (turncounter >= 5) {  //ogni 5 turni aggiunge una riga di palline
             // Add a row of bubbles
             addBubbles();
             turncounter = 0;
@@ -785,8 +797,7 @@ window.onload = async function () {
             context.fillStyle = "#ffffff";
             context.font = "24px Verdana";
             drawCenterText("Game Over!", level.x, level.y + level.height / 2 + 10, level.width);
-            drawCenterText("Click to start", level.x, level.y + level.height / 2 + 40, level.width);
-            //TODO replace Click with "Shoot"
+            drawCenterText("Shoot to start", level.x, level.y + level.height / 2 + 40, level.width);
         }
     }
 
@@ -983,6 +994,7 @@ window.onload = async function () {
 
         // Set the next bubble
         player.nextbubble.tiletype = nextcolor;
+        console.log('carico palla nuova!')
     }
 
     // Get a random existing color
@@ -1002,11 +1014,9 @@ window.onload = async function () {
         return Math.floor(low + Math.random() * (high - low + 1));
     }
 
-    //TODO change commands to work with Movenet poses
-
-
     // Shoot the bubble
     function shootBubble() {
+
         // Shoot the bubble in the direction of the mouse
         player.bubble.x = player.x;
         player.bubble.y = player.y;
@@ -1015,6 +1025,7 @@ window.onload = async function () {
 
         // Set the gamestate
         setGameState(gamestates.shootbubble);
+        console.log('sparo!');
     }
 
     // Check if two circles intersect
