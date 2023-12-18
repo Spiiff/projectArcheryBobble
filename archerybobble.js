@@ -258,16 +258,29 @@ window.onload = async function () {
             stateRemoveCluster(dt);
         }
 
+        //new code for gametime calculations
+        var gametime = 4;
+        var tempoInizio = gametime;
+        var interval = setInterval( function(){
+            gametime--;
+            if (gametime <= 0) {
+                gametime = tempoInizio;
+            }
+        });  // tolto timeout--->  },1000)
+
         //new code of movement with camera control
         if (!detector) {   //aggiunto controllo per attendere la funzione asincrona sia caricata e per migliorare caricamento modello
             return;
         }
+
         // Prendo le pose dal video webcam
         detector.estimatePoses(enableWebcam).then(poses => {
             const camThresholdfromTop = 150; //soglia superiore camera in pixel
-            const currentTime = new Date().getTime();
-            let lastShotTime=null;
-            const shotCooldown = 4000; //tempo attesa tra lanci in millisecondi (3 secondi)
+            const camThresholdfromSide = 100;
+            //const currentTime = new Date().getTime();
+            //let lastShotTime=null;
+            //const shotCooldown = 4000; //tempo attesa tra lanci in millisecondi (4 secondi)
+
             // Utilizzo le coordinate delle pose per controllare le funzioni
             // utilizzo la posizione del polso destro per controllare la posizione del mouse
             var pos = {
@@ -279,9 +292,10 @@ window.onload = async function () {
             player.angle = mouseangle;
 
             // Utilizzo le coordinate del polso sinistro per controllare il lancio della pallina
-            if (poses[0].keypoints[9].y < camThresholdfromTop && poses[0].keypoints[9].score>0.5) { //fiducia al 50%
-                if (lastShotTime === null || currentTime - lastShotTime >= shotCooldown) {
+            if (poses[0].keypoints[9].y < camThresholdfromTop && poses[0].keypoints[9].score>0.4) { //fiducia al 20%
+                if (gamestate == gamestates.ready && gamestate != gamestate.shootbubble && gamestate != gamestate.removecluster) {
                     shootBubble();
+                    //shootingTime=true;
                     //lastShotTime = currentTime;
                 }} else if (gamestate == gamestates.gameover) {
                 newGame();
@@ -1005,7 +1019,6 @@ window.onload = async function () {
         if (existingcolors.length > 0) {
             bubbletype = existingcolors[randRange(0, existingcolors.length - 1)];
         }
-
         return bubbletype;
     }
 
