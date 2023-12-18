@@ -278,7 +278,6 @@ window.onload = async function () {
             const camThresholdfromTop = 150; //soglia superiore camera in pixel
             const camThresholdfromSide = 100;
             //const currentTime = new Date().getTime();
-            //let lastShotTime=null;
             //const shotCooldown = 4000; //tempo attesa tra lanci in millisecondi (4 secondi)
 
             // Utilizzo le coordinate delle pose per controllare le funzioni
