@@ -276,8 +276,6 @@ window.onload = async function () {
         // Prendo le pose dal video webcam
         detector.estimatePoses(enableWebcam).then(poses => {
             const camThresholdfromTop = 150; //soglia superiore camera in pixel
-            const camThresholdfromSide = 100;
-            //const currentTime = new Date().getTime();
             //const shotCooldown = 4000; //tempo attesa tra lanci in millisecondi (4 secondi)
 
             // Utilizzo le coordinate delle pose per controllare le funzioni
@@ -294,8 +292,6 @@ window.onload = async function () {
             if (poses[0].keypoints[9].y < camThresholdfromTop && poses[0].keypoints[9].score>0.4) { //fiducia al 20%
                 if (gamestate == gamestates.ready && gamestate != gamestate.shootbubble && gamestate != gamestate.removecluster) {
                     shootBubble();
-                    //shootingTime=true;
-                    //lastShotTime = currentTime;
                 }} else if (gamestate == gamestates.gameover) {
                 newGame();
             }
@@ -1037,7 +1033,7 @@ window.onload = async function () {
 
         // Set the gamestate
         setGameState(gamestates.shootbubble);
-        console.log('sparo!');
+        //console.log('shooting!');
     }
 
     // Check if two circles intersect
